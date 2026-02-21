@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Global</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+
+        <!-- Register/Join Screen -->
+        <div id="register-screen" class="active">
+            <input type="text" id="display-name" placeholder="Enter display name" maxlength="20">
+            <div class="btn-group">
+                <button class="btn-primary" onclick="registerUser()">Start Playing</button>
+            </div>
+        </div>
+
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="menu-screen">
+            <h2 id="welcome-text"></h2>
+            <div class="btn-group">
+                <button class="btn-primary" onclick="startSolo()">Vs. Computer</button>
+                <button class="btn-secondary" onclick="startWithFriend()">Play with Friend</button>
+                <button class="btn-accent" onclick="quickMatch()">Random Match</button>
+            </div>
+            <div id="join-room-section" style="margin-top: 2rem;">
+                <input type="text" id="join-room-id" placeholder="Enter Room Code">
+                <button class="btn-primary" onclick="joinRoomByCode()">Join Room</button>
+            </div>
+        </div>
+
+        <!-- Lobby Screen -->
+        <div id="lobby-screen" class="lobby-screen">
+            <h2>Waiting for Opponent...</h2>
+            <p>Share this code with your friend:</p>
+            <div class="room-code-display" id="room-code">000000</div>
+            <br>
+            <button class="btn-accent" onclick="backToMenu()">Leave Room</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="game-screen">
+            <div class="status-bar">
+                <div id="player-names">You vs Opponent</div>
+                <div class="timer" id="turn-timer">Time: 30s</div>
+            </div>
+            <div id="current-turn-status" style="margin-bottom: 1rem; font-weight: bold;">Your Turn</div>
+            
+            <div class="board" id="board">
+                <div class="cell" onclick="makeMove(0)"></div>
+                <div class="cell" onclick="makeMove(1)"></div>
+                <div class="cell" onclick="makeMove(2)"></div>
+                <div class="cell" onclick="makeMove(3)"></div>
+                <div class="cell" onclick="makeMove(4)"></div>
+                <div class="cell" onclick="makeMove(5)"></div>
+                <div class="cell" onclick="makeMove(6)"></div>
+                <div class="cell" onclick="makeMove(7)"></div>
+                <div class="cell" onclick="makeMove(8)"></div>
+            </div>
+
+            <div class="reactions">
+                <span class="emoji" onclick="sendReaction('👏')">👏</span>
+                <span class="emoji" onclick="sendReaction('😂')">😂</span>
+                <span class="emoji" onclick="sendReaction('😲')">😲</span>
+                <span class="emoji" onclick="sendReaction('😠')">😠</span>
+            </div>
+            <div id="floating-reaction" style="height: 30px; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Win Modal -->
+    <div id="win-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="win-text">Winner!</h2>
+            <div class="btn-group" style="margin-top: 1rem;">
+                <button class="btn-primary" onclick="requestRematch()">Rematch</button>
+                <button class="btn-secondary" onclick="backToMenu()">Leave</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

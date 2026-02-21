@@ -1,0 +1,219 @@
+:root {
+    --bg-pastel-blue: #C7CEEA;
+    --bg-pastel-pink: #FFB7B2;
+    --bg-pastel-peach: #FFDAC1;
+    --bg-pastel-green: #B5EAD7;
+    --bg-pastel-yellow: #E2F0CB;
+    --text-color: #555;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background: linear-gradient(-45deg, #FFB7B2, #FFDAC1, #E2F0CB, #B5EAD7, #C7CEEA);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.container {
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.menu-screen,
+.lobby-screen,
+.game-screen {
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+button {
+    padding: 1rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+    background-color: var(--bg-pastel-blue);
+    color: #5B63B7;
+}
+
+.btn-secondary {
+    background-color: var(--bg-pastel-green);
+    color: #3B7A57;
+}
+
+.btn-accent {
+    background-color: var(--bg-pastel-pink);
+    color: #B75B5B;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    opacity: 0.9;
+}
+
+input {
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    margin-bottom: 1rem;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    margin: 2rem auto;
+    width: 300px;
+    height: 300px;
+}
+
+.cell {
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+    width: 93px;
+    height: 93px;
+    overflow: hidden;
+}
+
+.cell:hover {
+    background: #fdfdfd;
+}
+
+.cell.x {
+    color: #FF6B6B;
+}
+
+.cell.o {
+    color: #4D96FF;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.reactions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 1rem;
+    font-size: 1.5rem;
+}
+
+.emoji {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.emoji:hover {
+    transform: scale(1.3);
+}
+
+.room-code-display {
+    background: #f0f0f0;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.timer {
+    font-size: 0.9rem;
+    color: #888;
+}

@@ -1,0 +1,165 @@
+Project Requirements Document: Tic-Tac-Toe Global
+Version: 1.0
+
+Tech stack - Java17 and springboot for webserver and frontend - html/css and javascript if required and compatible with java sprint boot project
+
+Database- MySQL
+
+Design - should be modern and smooth, use pastel colour for UI there no dark colors
+
+
+Status: Drafted
+
+1. Project Overview
+
+A cross-platform Tic-Tac-Toe application allowing users to play against a local AI, specific friends via room codes, or random opponents globally.
+
+2. Functional Requirements
+
+2.1 Game Modes
+
+Mode	Description
+Vs. Computer	Single-player mode against an AI. Includes difficulty levels (Easy, Medium, Impossible).
+Play with Friend	User creates a Private Room, receives a 6-digit code, and shares it.
+Random Match	User joins a Public Queue. The system matches them with the first available "Waiting" player or creates a new public room.
+2.2 Room & Session Management
+
+Room Creation: Upon selecting "Play with Friend," the server generates a unique Room ID.
+
+Joining: Users must enter a Room ID to join a private session.
+
+Lobby State: A "Waiting for Opponent" screen is displayed until the second player joins.
+
+Identity: Before entering any multiplayer room, users must provide a display name.
+
+2.3 Gameplay Mechanics
+
+Turn Management: Visual indicators for whose turn it is (e.g., "Your Turn" vs "Opponent's Turn").
+
+Win/Draw Logic: Automatic detection of 3-in-a-row or a full board.
+
+Score Tracking: A persistent scoreboard for the duration of the session (e.g., Player A: 2, Player B: 1).
+
+Rematch System: Players can vote to play again without leaving the room.
+
+3. The "Missing Pieces" (Added Features)
+
+To make this a polished product, I've added these necessary requirements:
+
+Turn Timer: To prevent a random player from walking away and "soft-locking" the game, each player should have 15–30 seconds to move before forfeiting.
+
+Real-time Connection Status: Indicators to show if the opponent has disconnected or is lagging.
+
+Auto-Cleanup: Rooms should automatically close/expire after 10 minutes of inactivity to save server resources.
+
+Emoji Reactions: Since typing a full chat can be toxic or tedious, simple emoji reactions (👏, 😂, 😲, 😠) allow for quick interaction.
+
+Responsiveness: The game board must scale for both mobile and desktop screens.
+
+4. Technical Constraints
+
+Latency: Use WebSockets (e.g., Socket.io) for real-time move updates to ensure minimal delay between international players.
+
+Concurrency: The backend must handle multiple simultaneous rooms without "leaking" moves from Room A to Room B.
+
+State Persistence: If a user refreshes the page, the app should ideally attempt to reconnect them to the active session via a session cookie or local storage.
+
+5. User Interface (UI) Requirements
+
+Home Screen: Buttons for "Solo," "With Friend," and "Quick Match."
+
+The Board: A clean 3x3 grid.
+
+Post-Game Modal: Large "Winner" or "Draw" text with "Rematch" or "Leave Room" options.
+
+Leaderboard (Optional): A global top-10 list based on "Random Match" wins.
+
+6. Success Metrics
+
+Matchmaking Speed: Users should find a "Random Match" in under 10 seconds.
+
+Stability: Zero "ghost moves" (moves that show for one player but not the other).
+
+
+---------- database and arctiecture overview-------
+
+Since we’re moving forward with SQL for persistence and In-Memory for the "Live" state, we have a classic hybrid architecture. Think of the SQL database as the "Long-term Memory" (Who are these players?) and the In-Memory Map as the "Short-term Memory" (Where is the 'X' right now?).
+
+1. SQL Database Schema (PostgreSQL/MySQL)
+This handles user identity and historical records. We don't want to hit this table every time someone moves a piece; we only hit it at the beginning (login/join) and the end (save result).
+
+Table: users
+
+Even if you don't have a full "login" system, you can use these records to track scores based on the name they entered.
+
+id: UUID (Primary Key)
+
+display_name: VARCHAR(50) (Unique-ish or linked to a session)
+
+wins: INT (Default 0)
+
+losses: INT (Default 0)
+
+draws: INT (Default 0)
+
+Table: match_history
+
+This is for the "Receipts"—keeping track of every game played globally.
+
+id: UUID (Primary Key)
+
+player_x_name: VARCHAR(50)
+
+player_o_name: VARCHAR(50)
+
+winner_name: VARCHAR(50) (NULL if draw)
+
+mode: ENUM ('friend', 'random', 'ai')
+
+played_at: TIMESTAMP (Default NOW())
+
+2. In-Memory Session Design (Server RAM)
+In your backend code, you will maintain a Map (e.g., const rooms = new Map();). This is where the actual game logic lives.
+
+Structure of a "Room" Object:
+
+JavaScript
+{
+  id: "6-digit-code",
+  status: "waiting" | "playing" | "finished",
+  players: [
+    { socketId: "...", name: "Alice", symbol: "X", score: 0 },
+    { socketId: "...", name: "Bob", symbol: "O", score: 0 }
+  ],
+  board: Array(9).fill(null), // [null, 'X', 'O', ...]
+  turnIndex: 0, // Whose turn is it? (0 or 1)
+  lastActivity: Date.now(), // For the cleanup sweeper
+  isPrivate: true // Determines if it's "Play with Friend" or "Random"
+}
+3. The Lifecycle: Memory to SQL
+To keep your server lean, the data flows like a relay race.
+
+Creation: When a player starts a room, it is created in the In-Memory Map.
+
+Gameplay: Moves are validated and updated only in In-Memory.
+
+Completion: Once a win/draw is detected:
+
+Update the users table in SQL (increment wins/losses).
+
+Insert a row into match_history in SQL.
+
+Cleanup: Remove the room from In-Memory after a short grace period (e.g., 2 minutes) if no rematch is started.
+
+4. The "Stale Room" Sweeper (Garbage Collection)
+Since you asked to clear empty sessions to save memory, you need a background process. In Node.js, you’d use setInterval to run every few minutes.
+
+The Cleanup Logic:
+
+Case A (Disconnected): If a player’s socket disconnects, wait 30 seconds. If they don't reconnect, delete the room from the Map.
+
+Case B (Inactive): If Date.now() - room.lastActivity > 1800000 (30 minutes), delete the room regardless of state.
+
+Case C (Finished): If the game is over and neither player clicks "Rematch" within 2 minutes, delete the room.
+
+
